@@ -1,19 +1,19 @@
-import { FastifyInstance } from "fastify";
-import { ZodTypeProvider } from "fastify-type-provider-zod";
+import {
+  BadRequest
+} from "./chunk-JRO4E4TH.mjs";
+import {
+  prisma
+} from "./chunk-JV6GRE7Y.mjs";
+
+// src/routes/get-event.ts
 import { z } from "zod";
-import { prisma } from "../lib/prisma";
-import { BadRequest } from "./_errors/bad-request";
-
-export async function getEvent(app: FastifyInstance) {
-
-  app
-  .withTypeProvider<ZodTypeProvider>()
-  .get('/events/:eventId', {
+async function getEvent(app) {
+  app.withTypeProvider().get("/events/:eventId", {
     schema: {
-      summary: 'Get an event',
-      tags: ['events'],
+      summary: "Get an event",
+      tags: ["events"],
       params: z.object({
-        eventId: z.string().uuid(),
+        eventId: z.string().uuid()
       }),
       response: {
         200: z.object({
@@ -29,8 +29,7 @@ export async function getEvent(app: FastifyInstance) {
       }
     }
   }, async (request, reply) => {
-    const { eventId } = request.params
-
+    const { eventId } = request.params;
     const event = await prisma.event.findUnique({
       select: {
         id: true,
@@ -47,13 +46,11 @@ export async function getEvent(app: FastifyInstance) {
       where: {
         id: eventId
       }
-    })
-
+    });
     if (event === null) {
-      throw new BadRequest('Event not found')
+      throw new BadRequest("Event not found");
     }
-
-    return reply.send({ 
+    return reply.send({
       event: {
         id: event.id,
         slug: event.slug,
@@ -62,8 +59,10 @@ export async function getEvent(app: FastifyInstance) {
         maximumAttendees: event.maximumAttendees,
         attendeesAmount: event._count.attendees
       }
-
-
-     })
-  })
+    });
+  });
 }
+
+export {
+  getEvent
+};
